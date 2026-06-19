@@ -137,7 +137,8 @@ PRODUCTS = [
     },
 ]
 
-STAR_COLORS = {5:"#ff9500", 4:"#ffcc02", 3:"#a8c5f0", 2:"#ffb3b3", 1:"#ff3b30"}
+STAR_COLORS  = {5:"#1a7c3e", 4:"#57bb6e", 3:"#f5c518", 2:"#f07f26", 1:"#c0392b"}
+STAR_LABELS  = {5:"5 stars ★★★★★", 4:"4 stars ★★★★", 3:"3 stars ★★★", 2:"2 stars ★★", 1:"1 star ★"}
 TREND_COLORS = {
     "m0":"#9333ea","m1":"#ff6900","m1pro":"#f97316","m2pro":"#2563eb",
     "lockpro":"#16a34a","lockultra":"#dc2626",
@@ -203,18 +204,18 @@ def render_star_bars(stars):
     fig = go.Figure()
     for star in [5, 4, 3, 2, 1]:
         pct = stars.get(star, 0)
-        color = "#ff3b30" if star <= 2 else "#ff9500"
         fig.add_trace(go.Bar(
-            x=[pct], y=[f"{star}★"], orientation="h",
-            marker_color=color,
+            x=[pct], y=[f"{star} ★"], orientation="h",
+            marker_color=STAR_COLORS[star],
             text=[f"{pct}%"], textposition="outside",
-            hovertemplate=f"{star}★: {pct}%<extra></extra>",
+            textfont=dict(size=12, color="#333"),
+            hovertemplate=f"{star} stars: {pct}%<extra></extra>",
         ))
     fig.update_layout(
-        showlegend=False, margin=dict(l=0,r=40,t=0,b=0), height=130,
-        xaxis=dict(range=[0,115], visible=False),
-        yaxis=dict(autorange="reversed"),
-        plot_bgcolor="white", paper_bgcolor="white", bargap=0.25,
+        showlegend=False, margin=dict(l=0,r=48,t=0,b=0), height=130,
+        xaxis=dict(range=[0,120], visible=False),
+        yaxis=dict(autorange="reversed", tickfont=dict(size=13, color="#333")),
+        plot_bgcolor="white", paper_bgcolor="white", bargap=0.28,
     )
     return fig
 
@@ -382,14 +383,19 @@ with tab_hist:
         for s in [5,4,3,2,1]:
             y = star_cum[s] if mode_vol=="Cumulative" else star_daily[s]
             fig_vol.add_trace(go.Bar(
-                x=dates, y=y, name=f"{s}★",
+                x=dates, y=y, name=STAR_LABELS[s],
                 marker_color=STAR_COLORS[s],
-                hovertemplate=f"{s}★: %{{y}}<extra></extra>",
+                hovertemplate=f"{STAR_LABELS[s]}: %{{y}}<extra></extra>",
             ))
         fig_vol.update_layout(
-            title="Ratings over time", barmode="stack", height=320,
+            title="Ratings over time", barmode="stack", height=340,
             margin=dict(l=0,r=0,t=40,b=0),
-            legend=dict(orientation="h",yanchor="bottom",y=1.02),
+            legend=dict(
+                orientation="v", x=1.01, y=1,
+                title=dict(text="Star rating", font=dict(size=12)),
+                font=dict(size=12), bgcolor="rgba(255,255,255,0.9)",
+                bordercolor="#e0e0e0", borderwidth=1,
+            ),
             plot_bgcolor="white", paper_bgcolor="white",
             xaxis=dict(showgrid=False), yaxis=dict(gridcolor="#f0f0f0"),
         )
@@ -406,14 +412,19 @@ with tab_hist:
             else:
                 y = star_daily[s]
             fig_skew.add_trace(go.Scatter(
-                x=dates, y=y, name=f"{s}★", mode="lines",
-                line=dict(color=STAR_COLORS[s], width=2),
-                hovertemplate=f"{s}★: %{{y}}<extra></extra>",
+                x=dates, y=y, name=STAR_LABELS[s], mode="lines",
+                line=dict(color=STAR_COLORS[s], width=2.5),
+                hovertemplate=f"{STAR_LABELS[s]}: %{{y}}<extra></extra>",
             ))
         fig_skew.update_layout(
-            title="Star skew over time", height=300,
+            title="Star skew over time", height=320,
             margin=dict(l=0,r=0,t=40,b=0),
-            legend=dict(orientation="h",yanchor="bottom",y=1.02),
+            legend=dict(
+                orientation="v", x=1.01, y=1,
+                title=dict(text="Star rating", font=dict(size=12)),
+                font=dict(size=12), bgcolor="rgba(255,255,255,0.9)",
+                bordercolor="#e0e0e0", borderwidth=1,
+            ),
             plot_bgcolor="white", paper_bgcolor="white",
             xaxis=dict(showgrid=False), yaxis=dict(gridcolor="#f0f0f0"),
         )
@@ -469,6 +480,10 @@ with tab_trends:
             st.divider()
 
             # ── Chart 1: Rating line + stacked star counts ────────────────────
+            LEGEND_STYLE = dict(
+                font=dict(size=12), bgcolor="rgba(255,255,255,0.9)",
+                bordercolor="#e0e0e0", borderwidth=1,
+            )
             fig_main = make_subplots(specs=[[{"secondary_y":True}]])
             first_sku = True
             for sku, rows in sku_rows.items():
@@ -476,13 +491,15 @@ with tab_trends:
                 for s in [1,2,3,4,5]:
                     fig_main.add_trace(go.Bar(
                         x=dates, y=[r.get(f"c{s}",0) for r in rows],
-                        name=f"{s}★", marker_color=STAR_COLORS[s], opacity=0.65,
+                        name=STAR_LABELS[s],
+                        marker_color=STAR_COLORS[s], opacity=0.75,
                         showlegend=first_sku,
-                        hovertemplate=f"{s}★ count: %{{y}}<extra></extra>",
+                        legendgroup=f"star{s}",
+                        hovertemplate=f"{STAR_LABELS[s]}: %{{y}}<extra></extra>",
                     ), secondary_y=False)
                 fig_main.add_trace(go.Scatter(
                     x=dates, y=[r["r"] for r in rows],
-                    name=TRENDS[sku].get("label",sku),
+                    name=TRENDS[sku].get("label", sku),
                     line=dict(color=TREND_COLORS.get(sku,"#333"), width=2.5),
                     mode="lines+markers", marker=dict(size=4),
                     hovertemplate="Rating: %{y:.2f}<extra></extra>",
@@ -490,9 +507,9 @@ with tab_trends:
                 first_sku = False
             fig_main.update_layout(
                 title="Daily rating & total ratings (stacked by star)",
-                barmode="stack", height=360,
-                margin=dict(l=0,r=0,t=40,b=0),
-                legend=dict(orientation="h",yanchor="bottom",y=1.02),
+                barmode="stack", height=380,
+                margin=dict(l=0,r=160,t=40,b=0),
+                legend=dict(x=1.01, y=1, **LEGEND_STYLE),
                 plot_bgcolor="white", paper_bgcolor="white",
             )
             fig_main.update_yaxes(title_text="Review count", secondary_y=False)
@@ -503,28 +520,29 @@ with tab_trends:
             for s in [5,4,3,2,1]:
                 fig_s = make_subplots(specs=[[{"secondary_y":True}]])
                 for sku, rows in sku_rows.items():
+                    label = TRENDS[sku].get("label", sku)
                     dates = [r["d"] for r in rows]
                     fig_s.add_trace(go.Bar(
                         x=dates, y=[r.get(f"c{s}",0) for r in rows],
-                        name=f"{TRENDS[sku].get('label',sku)} count",
-                        marker_color=STAR_COLORS[s], opacity=0.7,
+                        name=f"{label} — count",
+                        marker_color=STAR_COLORS[s], opacity=0.75,
                         hovertemplate="Count: %{y}<extra></extra>",
                     ), secondary_y=False)
                     fig_s.add_trace(go.Scatter(
                         x=dates, y=[r.get(f"p{s}",0) for r in rows],
-                        name=f"{TRENDS[sku].get('label',sku)} %",
-                        line=dict(color=TREND_COLORS.get(sku,"#333"), width=2),
+                        name=f"{label} — % share",
+                        line=dict(color=TREND_COLORS.get(sku,"#333"), width=2.5),
                         mode="lines",
-                        hovertemplate="%%: %{y:.1f}%%<extra></extra>",
+                        hovertemplate="Share: %{y:.1f}%%<extra></extra>",
                     ), secondary_y=True)
                 fig_s.update_layout(
-                    title=f"{s}★ ratings — count (bar) & % of total (line)",
-                    height=260, margin=dict(l=0,r=0,t=40,b=0),
-                    legend=dict(orientation="h",yanchor="bottom",y=1.02),
+                    title=f"{STAR_LABELS[s]}  —  count (bar) & % of total (line)",
+                    height=280, margin=dict(l=0,r=160,t=40,b=0),
+                    legend=dict(x=1.01, y=1, **LEGEND_STYLE),
                     plot_bgcolor="white", paper_bgcolor="white",
                 )
-                fig_s.update_yaxes(title_text="Count",   secondary_y=False)
-                fig_s.update_yaxes(title_text="% share", secondary_y=True)
+                fig_s.update_yaxes(title_text="Count",    secondary_y=False)
+                fig_s.update_yaxes(title_text="% share",  secondary_y=True)
                 st.plotly_chart(fig_s, use_container_width=True, key=f"tr_star{s}_chart")
 
             st.divider()
@@ -562,8 +580,13 @@ with tab_trends:
                         mode="lines",
                     ))
             fig_comp.update_layout(
-                height=360, margin=dict(l=0,r=0,t=20,b=0),
-                legend=dict(orientation="h",yanchor="bottom",y=1.02),
+                height=400, margin=dict(l=0,r=180,t=20,b=0),
+                legend=dict(
+                    x=1.01, y=1, font=dict(size=12),
+                    bgcolor="rgba(255,255,255,0.9)",
+                    bordercolor="#e0e0e0", borderwidth=1,
+                    title=dict(text="Product", font=dict(size=12)),
+                ),
                 plot_bgcolor="white", paper_bgcolor="white",
                 yaxis=dict(range=[3.5,5.2], gridcolor="#f0f0f0", title="Rating"),
                 xaxis=dict(showgrid=False),
