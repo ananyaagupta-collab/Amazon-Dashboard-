@@ -598,21 +598,50 @@ with tab_trends:
             st.plotly_chart(fig_comp, use_container_width=True, key="tr_comp_chart")
 
             # Competitor snapshot cards
-            st.markdown("**Competitor snapshot — Jun 2026**")
             if comp_keys:
-                comp_cols = st.columns(min(len(comp_keys), 4))
-                for i, ck in enumerate(comp_keys):
-                    cv = COMPETITORS[ck]
-                    d  = cv.get("daily",[])[0] if cv.get("daily") else {}
-                    with comp_cols[i % 4]:
-                        with st.container(border=True):
-                            st.markdown(f"**{cv.get('label',ck)}**")
-                            st.caption(cv.get("brand",""))
-                            if d:
-                                st.metric("Rating", f"{d.get('r','—')} ★",
-                                          f"{fmt_num(d.get('t',0))} reviews")
-                            st.markdown(
-                                f'<a href="{cv.get("url","#")}" target="_blank" '
-                                f'style="color:#ff6900;font-size:.8rem;">View on Amazon ↗</a>',
-                                unsafe_allow_html=True,
+                # render 5 per row
+                for row_start in range(0, len(comp_keys), 5):
+                    row_keys = comp_keys[row_start:row_start+5]
+                    cols = st.columns(len(row_keys))
+                    for col, ck in zip(cols, row_keys):
+                        cv = COMPETITORS[ck]
+                        d  = cv.get("daily",[])[0] if cv.get("daily") else {}
+                        color = cv.get("color","#ff6900")
+                        r     = d.get("r","—")
+                        t     = d.get("t",0)
+                        p5    = d.get("p5",0)
+                        stars_data = [(5,d.get("p5",0)),(4,d.get("p4",0)),(3,d.get("p3",0)),(2,d.get("p2",0)),(1,d.get("p1",0))]
+
+                        # build star bars HTML
+                        bars_html = ""
+                        for sv, pct in stars_data:
+                            bar_color = STAR_COLORS[sv]
+                            bars_html += (
+                                f'<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">'
+                                f'<span style="font-size:.7rem;width:16px;text-align:right;opacity:.7;">{sv}★</span>'
+                                f'<div style="flex:1;height:5px;background:rgba(128,128,128,0.2);border-radius:3px;overflow:hidden;">'
+                                f'<div style="width:{pct}%;height:100%;background:{bar_color};border-radius:3px;"></div>'
+                                f'</div>'
+                                f'<span style="font-size:.7rem;width:26px;opacity:.7;">{pct}%</span>'
+                                f'</div>'
                             )
+
+                        card_html = (
+                            f'<div style="border:1px solid rgba(128,128,128,0.25);border-radius:12px;padding:12px 14px;height:100%;">'
+                            f'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px;">'
+                            f'<div>'
+                            f'<div style="font-weight:700;font-size:.9rem;line-height:1.3;">{cv.get("label",ck)}</div>'
+                            f'<div style="font-size:.75rem;opacity:.6;margin-top:1px;">{cv.get("brand","")}</div>'
+                            f'</div>'
+                            f'<div style="font-size:1.6rem;font-weight:800;color:{color};line-height:1;">{r}★</div>'
+                            f'</div>'
+                            f'<div style="font-size:.72rem;opacity:.6;margin-bottom:8px;">'
+                            f'{fmt_num(t)} ratings &middot; {p5}% are 5★'
+                            f'</div>'
+                            f'{bars_html}'
+                            f'<a href="{cv.get("url","#")}" target="_blank" '
+                            f'style="color:#ff6900;font-size:.75rem;font-weight:600;text-decoration:none;display:block;margin-top:8px;">View on Amazon ↗</a>'
+                            f'</div>'
+                        )
+                        with col:
+                            st.markdown(card_html, unsafe_allow_html=True)
