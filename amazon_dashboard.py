@@ -254,7 +254,7 @@ def render_product_card(p):
 
         st.markdown('<hr class="divider">', unsafe_allow_html=True)
         st.markdown('<div class="section-label">Rating Breakdown</div>', unsafe_allow_html=True)
-        st.plotly_chart(render_star_bars(p["stars"]), use_container_width=True, config={"displayModeBar":False})
+        st.plotly_chart(render_star_bars(p["stars"]), use_container_width=True, config={"displayModeBar":False}, key=f"stars_{p['id']}")
 
         st.markdown('<div class="section-label">🤖 AI Amazon Customer Summary</div>', unsafe_allow_html=True)
         if p["ai_summary"]:
@@ -393,7 +393,7 @@ with tab_hist:
             plot_bgcolor="white", paper_bgcolor="white",
             xaxis=dict(showgrid=False), yaxis=dict(gridcolor="#f0f0f0"),
         )
-        st.plotly_chart(fig_vol, use_container_width=True)
+        st.plotly_chart(fig_vol, use_container_width=True, key="hist_vol_chart")
 
         # ── Star skew over time ───────────────────────────────────────────────
         mode_skew = st.radio("Chart mode", ["Cumulative mix %","New per day"],
@@ -417,7 +417,7 @@ with tab_hist:
             plot_bgcolor="white", paper_bgcolor="white",
             xaxis=dict(showgrid=False), yaxis=dict(gridcolor="#f0f0f0"),
         )
-        st.plotly_chart(fig_skew, use_container_width=True)
+        st.plotly_chart(fig_skew, use_container_width=True, key="hist_skew_chart")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -497,7 +497,7 @@ with tab_trends:
             )
             fig_main.update_yaxes(title_text="Review count", secondary_y=False)
             fig_main.update_yaxes(title_text="Rating", range=[3.5,5.2], secondary_y=True)
-            st.plotly_chart(fig_main, use_container_width=True)
+            st.plotly_chart(fig_main, use_container_width=True, key="tr_main_chart")
 
             # ── Charts per star (5★ down to 1★) ──────────────────────────────
             for s in [5,4,3,2,1]:
@@ -525,7 +525,7 @@ with tab_trends:
                 )
                 fig_s.update_yaxes(title_text="Count",   secondary_y=False)
                 fig_s.update_yaxes(title_text="% share", secondary_y=True)
-                st.plotly_chart(fig_s, use_container_width=True)
+                st.plotly_chart(fig_s, use_container_width=True, key=f"tr_star{s}_chart")
 
             st.divider()
 
@@ -568,7 +568,7 @@ with tab_trends:
                 yaxis=dict(range=[3.5,5.2], gridcolor="#f0f0f0", title="Rating"),
                 xaxis=dict(showgrid=False),
             )
-            st.plotly_chart(fig_comp, use_container_width=True)
+            st.plotly_chart(fig_comp, use_container_width=True, key="tr_comp_chart")
 
             # Competitor snapshot cards
             st.markdown("**Competitor snapshot — Jun 2026**")
