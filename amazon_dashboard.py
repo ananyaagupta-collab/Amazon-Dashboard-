@@ -22,19 +22,19 @@ st.markdown("""
   .big-rating { font-size:2.2rem; font-weight:800; line-height:1; }
   .stars      { font-size:1.1rem; color:#ff9500; letter-spacing:2px; }
   .badge { display:inline-block; padding:2px 10px; border-radius:12px; font-size:.75rem; font-weight:600; }
-  .badge-purifier { background:#e8f5e9; color:#2e7d32; }
-  .badge-lock     { background:#e3f2fd; color:#1565c0; }
-  .badge-instock  { background:#e8f5e9; color:#2e7d32; }
-  .badge-unavail  { background:#fce4ec; color:#c62828; }
-  .tag { display:inline-block; background:#f2f2f7; border-radius:12px; padding:2px 9px; font-size:.75rem; margin:2px; }
-  hr.divider { border:none; border-top:1px solid #f0f0f0; margin:8px 0; }
-  .section-label { font-size:.7rem; color:#8e8e93; text-transform:uppercase; letter-spacing:.7px; font-weight:600; margin-bottom:4px; }
-  .ai-box { background:#fafafa; border-radius:10px; padding:12px 14px; border:1px solid #e5e5ea; font-size:.85rem; color:#3a3a3c; line-height:1.55; }
-  .review-box { background:#fff; border-radius:8px; padding:10px 12px; border:1px solid #f0f0f0; margin-bottom:6px; }
+  .badge-purifier { background:rgba(46,125,50,0.18);  color:#52b788; }
+  .badge-lock     { background:rgba(21,101,192,0.18); color:#64b5f6; }
+  .badge-instock  { background:rgba(46,125,50,0.18);  color:#52b788; }
+  .badge-unavail  { background:rgba(198,40,40,0.18);  color:#ef9a9a; }
+  .tag { display:inline-block; background:rgba(128,128,128,0.15); border-radius:12px; padding:2px 9px; font-size:.75rem; margin:2px; }
+  hr.divider { border:none; border-top:1px solid rgba(128,128,128,0.2); margin:8px 0; }
+  .section-label { font-size:.7rem; color:rgba(128,128,128,0.85); text-transform:uppercase; letter-spacing:.7px; font-weight:600; margin-bottom:4px; }
+  .ai-box { background:rgba(128,128,128,0.08); border-radius:10px; padding:12px 14px; border:1px solid rgba(128,128,128,0.2); font-size:.85rem; line-height:1.55; }
+  .review-box { background:rgba(128,128,128,0.06); border-radius:8px; padding:10px 12px; border:1px solid rgba(128,128,128,0.15); margin-bottom:6px; }
   .review-author { font-weight:600; font-size:.82rem; }
-  .review-date   { color:#8e8e93; font-size:.75rem; }
-  .review-text   { font-size:.82rem; color:#3a3a3c; line-height:1.45; margin-top:4px; }
-  .hist-note { font-size:.8rem; color:#8e8e93; line-height:1.55; padding:6px 0 12px; }
+  .review-date   { color:rgba(128,128,128,0.8); font-size:.75rem; }
+  .review-text   { font-size:.82rem; line-height:1.45; margin-top:4px; opacity:0.85; }
+  .hist-note { font-size:.8rem; color:rgba(128,128,128,0.85); line-height:1.55; padding:6px 0 12px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -208,14 +208,14 @@ def render_star_bars(stars):
             x=[pct], y=[f"{star} ★"], orientation="h",
             marker_color=STAR_COLORS[star],
             text=[f"{pct}%"], textposition="outside",
-            textfont=dict(size=12, color="#333"),
+            textfont=dict(size=12),
             hovertemplate=f"{star} stars: {pct}%<extra></extra>",
         ))
     fig.update_layout(
         showlegend=False, margin=dict(l=0,r=48,t=0,b=0), height=130,
         xaxis=dict(range=[0,120], visible=False),
-        yaxis=dict(autorange="reversed", tickfont=dict(size=13, color="#333")),
-        plot_bgcolor="white", paper_bgcolor="white", bargap=0.28,
+        yaxis=dict(autorange="reversed", tickfont=dict(size=13)),
+        plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", bargap=0.28,
     )
     return fig
 
@@ -392,12 +392,13 @@ with tab_hist:
             margin=dict(l=0,r=0,t=40,b=0),
             legend=dict(
                 orientation="v", x=1.01, y=1,
-                title=dict(text="Star rating", font=dict(size=12)),
-                font=dict(size=12), bgcolor="rgba(255,255,255,0.9)",
-                bordercolor="#e0e0e0", borderwidth=1,
+                title=dict(text="Star rating", font=dict(size=12, color="#f0f0f0")),
+                font=dict(size=12, color="#f0f0f0"),
+                bgcolor="rgba(30,30,30,0.75)",
+                bordercolor="rgba(128,128,128,0.3)", borderwidth=1,
             ),
-            plot_bgcolor="white", paper_bgcolor="white",
-            xaxis=dict(showgrid=False), yaxis=dict(gridcolor="#f0f0f0"),
+            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(showgrid=False), yaxis=dict(gridcolor="rgba(128,128,128,0.2)"),
         )
         st.plotly_chart(fig_vol, use_container_width=True, key="hist_vol_chart")
 
@@ -421,12 +422,13 @@ with tab_hist:
             margin=dict(l=0,r=0,t=40,b=0),
             legend=dict(
                 orientation="v", x=1.01, y=1,
-                title=dict(text="Star rating", font=dict(size=12)),
-                font=dict(size=12), bgcolor="rgba(255,255,255,0.9)",
-                bordercolor="#e0e0e0", borderwidth=1,
+                title=dict(text="Star rating", font=dict(size=12, color="#f0f0f0")),
+                font=dict(size=12, color="#f0f0f0"),
+                bgcolor="rgba(30,30,30,0.75)",
+                bordercolor="rgba(128,128,128,0.3)", borderwidth=1,
             ),
-            plot_bgcolor="white", paper_bgcolor="white",
-            xaxis=dict(showgrid=False), yaxis=dict(gridcolor="#f0f0f0"),
+            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+            xaxis=dict(showgrid=False), yaxis=dict(gridcolor="rgba(128,128,128,0.2)"),
         )
         st.plotly_chart(fig_skew, use_container_width=True, key="hist_skew_chart")
 
@@ -481,8 +483,9 @@ with tab_trends:
 
             # ── Chart 1: Rating line + stacked star counts ────────────────────
             LEGEND_STYLE = dict(
-                font=dict(size=12), bgcolor="rgba(255,255,255,0.9)",
-                bordercolor="#e0e0e0", borderwidth=1,
+                font=dict(size=12, color="#f0f0f0"),
+                bgcolor="rgba(30,30,30,0.75)",
+                bordercolor="rgba(128,128,128,0.3)", borderwidth=1,
             )
             fig_main = make_subplots(specs=[[{"secondary_y":True}]])
             first_sku = True
@@ -510,7 +513,7 @@ with tab_trends:
                 barmode="stack", height=380,
                 margin=dict(l=0,r=160,t=40,b=0),
                 legend=dict(x=1.01, y=1, **LEGEND_STYLE),
-                plot_bgcolor="white", paper_bgcolor="white",
+                plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
             )
             fig_main.update_yaxes(title_text="Review count", secondary_y=False)
             fig_main.update_yaxes(title_text="Rating", range=[3.5,5.2], secondary_y=True)
@@ -539,7 +542,7 @@ with tab_trends:
                     title=f"{STAR_LABELS[s]}  —  count (bar) & % of total (line)",
                     height=280, margin=dict(l=0,r=160,t=40,b=0),
                     legend=dict(x=1.01, y=1, **LEGEND_STYLE),
-                    plot_bgcolor="white", paper_bgcolor="white",
+                    plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
                 )
                 fig_s.update_yaxes(title_text="Count",    secondary_y=False)
                 fig_s.update_yaxes(title_text="% share",  secondary_y=True)
@@ -582,13 +585,14 @@ with tab_trends:
             fig_comp.update_layout(
                 height=400, margin=dict(l=0,r=180,t=20,b=0),
                 legend=dict(
-                    x=1.01, y=1, font=dict(size=12),
-                    bgcolor="rgba(255,255,255,0.9)",
-                    bordercolor="#e0e0e0", borderwidth=1,
-                    title=dict(text="Product", font=dict(size=12)),
+                    x=1.01, y=1,
+                    font=dict(size=12, color="#f0f0f0"),
+                    bgcolor="rgba(30,30,30,0.75)",
+                    bordercolor="rgba(128,128,128,0.3)", borderwidth=1,
+                    title=dict(text="Product", font=dict(size=12, color="#f0f0f0")),
                 ),
-                plot_bgcolor="white", paper_bgcolor="white",
-                yaxis=dict(range=[3.5,5.2], gridcolor="#f0f0f0", title="Rating"),
+                plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+                yaxis=dict(range=[3.5,5.2], gridcolor="rgba(128,128,128,0.2)", title="Rating"),
                 xaxis=dict(showgrid=False),
             )
             st.plotly_chart(fig_comp, use_container_width=True, key="tr_comp_chart")
