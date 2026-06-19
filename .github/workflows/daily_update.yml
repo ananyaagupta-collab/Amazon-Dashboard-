@@ -1,0 +1,40 @@
+name: Daily Amazon ratings update
+
+on:
+  schedule:
+    # 9:00am IST = 3:30am UTC
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+    # also allows you to trigger it manually from GitHub anytime
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run scraper
+        run: python scrape_amazon.py
+
+      - name: Commit and push updated data
+        run: |
+          git config user.name  "Amazon Rating Bot"
+          git config user.email "bot@noreply.github.com"
+          git add trends_data.json competitors_data.json
+          git diff --staged --quiet || (
+            git commit -m "Daily ratings update $(date -u +%Y-%m-%d)" &&
+            git push
+          )
