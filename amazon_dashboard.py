@@ -9,12 +9,33 @@ st.set_page_config(
     layout="wide",
 )
 
-# ── Load JSON data files ──────────────────────────────────────────────────────
 BASE = os.path.dirname(__file__)
 
-with open(os.path.join(BASE, "history_data.json"))     as f: HISTORY     = json.load(f)
-with open(os.path.join(BASE, "trends_data.json"))      as f: TRENDS      = json.load(f)
-with open(os.path.join(BASE, "competitors_data.json")) as f: COMPETITORS = json.load(f)
+# ── Auto-refreshing data loaders (re-read files every hour) ──────────────────
+@st.cache_data(ttl=3600)
+def load_history():
+    with open(os.path.join(BASE, "history_data.json")) as f:
+        return json.load(f)
+
+@st.cache_data(ttl=3600)
+def load_trends():
+    with open(os.path.join(BASE, "trends_data.json")) as f:
+        return json.load(f)
+
+@st.cache_data(ttl=3600)
+def load_competitors():
+    with open(os.path.join(BASE, "competitors_data.json")) as f:
+        return json.load(f)
+
+@st.cache_data(ttl=3600)
+def load_snapshot():
+    with open(os.path.join(BASE, "live_snapshot.json")) as f:
+        return json.load(f)
+
+HISTORY     = load_history()
+TRENDS      = load_trends()
+COMPETITORS = load_competitors()
+_SNAPSHOT   = load_snapshot()
 
 # ── Styling ───────────────────────────────────────────────────────────────────
 st.markdown("""
@@ -137,6 +158,16 @@ PRODUCTS = [
     },
 ]
 
+# ── Merge live snapshot into PRODUCTS (rating + review count auto-update) ─────
+for _p in PRODUCTS:
+    _snap = _SNAPSHOT.get("products", {}).get(_p["id"], {})
+    if _snap.get("rating"):
+        _p["rating"] = _snap["rating"]
+    if _snap.get("review_count"):
+        _p["review_count"] = _snap["review_count"]
+    if _snap.get("monthly_buys") is not None:
+        _p["monthly_buys"] = _snap["monthly_buys"]
+
 STAR_COLORS  = {5:"#1a7c3e", 4:"#57bb6e", 3:"#f5c518", 2:"#f07f26", 1:"#c0392b"}
 STAR_LABELS  = {5:"5 stars ★★★★★", 4:"4 stars ★★★★", 3:"3 stars ★★★", 2:"2 stars ★★", 1:"1 star ★"}
 TREND_COLORS = {
@@ -189,7 +220,7 @@ with col_logo:
     )
 with col_title:
     st.markdown("## Native Products — Amazon Dashboard")
-    st.caption("Urban Company · amazon.in · Last updated: 19 Jun 2026")
+    st.caption(f"Urban Company · amazon.in · Last updated: {_SNAPSHOT.get('updated','—')}  ·  Auto-refreshes every hour")
 
 st.divider()
 

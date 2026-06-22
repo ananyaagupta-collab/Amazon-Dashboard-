@@ -159,6 +159,7 @@ def main():
     # load existing data
     with open(os.path.join(BASE, "trends_data.json"))      as f: trends    = json.load(f)
     with open(os.path.join(BASE, "competitors_data.json")) as f: comp_data = json.load(f)
+    with open(os.path.join(BASE, "live_snapshot.json"))    as f: snapshot  = json.load(f)
 
     # ── Native products ───────────────────────────────────────────────────
     print("Native products:")
@@ -166,6 +167,17 @@ def main():
         print(f"  Scraping {p['label']}...")
         rating, count, stars = scrape(p["url"])
         update_trends(trends, p["id"], p["label"], rating, count, stars)
+
+        # also update live snapshot so the Live Ratings tab shows fresh numbers
+        if rating is not None and count is not None:
+            prev = snapshot["products"].get(p["id"], {})
+            snapshot["products"][p["id"]] = {
+                "rating":       rating,
+                "review_count": count,
+                "monthly_buys": prev.get("monthly_buys"),
+            }
+
+    snapshot["updated"] = TODAY
 
     # ── Competitors ───────────────────────────────────────────────────────
     print("\nCompetitors:")
@@ -178,8 +190,9 @@ def main():
         update_competitor(comp_data, key, rating, count, stars)
 
     # ── Save ──────────────────────────────────────────────────────────────
-    with open(os.path.join(BASE, "trends_data.json"), "w")      as f: json.dump(trends,    f)
+    with open(os.path.join(BASE, "trends_data.json"),      "w") as f: json.dump(trends,    f)
     with open(os.path.join(BASE, "competitors_data.json"), "w") as f: json.dump(comp_data, f)
+    with open(os.path.join(BASE, "live_snapshot.json"),    "w") as f: json.dump(snapshot,  f, indent=2)
 
     print("\n✓ Data files saved.")
 
