@@ -1,9 +1,9 @@
 {
-  "updated": "2026-07-22",
+  "updated": "2026-07-23",
   "products": {
     "m0": {
       "rating": 4.4,
-      "review_count": 621,
+      "review_count": 632,
       "monthly_buys": "500+"
     },
     "m1": {
@@ -27,8 +27,8 @@
       "monthly_buys": "50+"
     },
     "lockultra": {
-      "rating": 5.0,
-      "review_count": 13,
+      "rating": 3.9,
+      "review_count": 30,
       "monthly_buys": null
     }
   }
