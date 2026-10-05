@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-04",
+  "updated": "2026-10-05",
   "products": {
     "m0": {
       "rating": 4.3,
@@ -22,8 +22,8 @@
       "monthly_buys": "2K+"
     },
     "lockpro": {
-      "rating": 4.5,
-      "review_count": 645,
+      "rating": 4.4,
+      "review_count": 668,
       "monthly_buys": "50+"
     },
     "lockultra": {
